@@ -11,7 +11,7 @@ L_IMG = os.getenv('L_IMG')
 
 
 curr_time = time.time()
-
+pid = os.getpid() 
 app = Flask(__name__)
 prev_url = ""
 
@@ -33,9 +33,11 @@ def set_netflix_presence(url):
     # extracct the url content 
     soup = BeautifulSoup(requests.get(url).content, "html.parser")
     title = soup.find('title').string.split("|")[0] # get the title 
-
-    rcp.set_presence(state=title, large_image=L_IMG, detail="Streaming ", limit=30) # set presence
-
+    try:
+        rcp.set_presence(pid=pid, state=title, large_image=L_IMG, detail="Streaming ", limit=30) # set presence
+    except Exception as e:
+        print(e)
+        pass
 
 @app.route('/send_url', methods=['POST'])
 def send_url():
@@ -45,8 +47,8 @@ def send_url():
     url = response.replace("url=", "")
     site, params = url_strip(url)
 
-    print("CURRENT TAB: " + site)
-    if prev_url: print("PREV TAB: ", prev_url)
+    print(f"CURRENT TAB: {site}")
+    if prev_url: print(f"PREV TAB: {prev_url}")
     prev_url = site
 
     # check if the visited site is netflix, if yes then set presence
@@ -63,7 +65,7 @@ def quit_url():
     site, _ = url_strip(url)
     if site:
         if "netflix.com" in site:
-            rcp.quit()
+            rcp.clear(pid)
 
     return jsonify({'message': 'quit success!'}), 200
 

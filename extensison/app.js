@@ -15,6 +15,7 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
     });
 });
 
+
 chrome.tabs.onUpdated.addListener((tabId, change, tab) => {
     if (tab.active && change.url) {
         var xhttp = new XMLHttpRequest();
